@@ -31,7 +31,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (!userInfo) {
             if (window.location.pathname != '/signup') {
-                // router.push('/login')
+                router.push('/login')
                 return 
             }
         } else {

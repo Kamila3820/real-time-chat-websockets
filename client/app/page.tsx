@@ -1,12 +1,20 @@
 "use client";  // make component to be client when u want to use hook state from react  e.g. useState, useEffect, useContext
 
-import { useEffect, useState } from 'react';
-import  { API_URL } from '../constants'
+import { useEffect, useState, useContext } from 'react';
+import { API_URL } from '../constants'
+import { WEBSOCKET_URL } from '../constants';
 import { v4 as uuidv4} from 'uuid'
+import { useRouter } from 'next/navigation'
+import { AuthContext } from '@/modules/auth_provider'; 
+import { WebSocketContext } from '@/modules/websocket_provider';    
 
 export default function Home() {
   const [rooms, setRooms] = useState<{ id: string, name: string}[]>([])
   const [roomName, setRoomName] = useState('')
+  const { user } = useContext(AuthContext)
+  const { setConn } = useContext(WebSocketContext)
+
+  const router = useRouter()
 
   const getRooms = async () => {
       try {
@@ -52,6 +60,14 @@ export default function Home() {
       }
   }
 
+  const joinRoom = (roomId: string) => {
+    const ws = new WebSocket(`${WEBSOCKET_URL}/ws/joinRoom/${roomId}?userId=${user.id}&username=${user.username}`)
+    if (ws.OPEN) {
+      setConn(ws)
+      router.push('/chat')
+    }
+  }
+
 
   return (
     <div className="my-8 px-4 md:mx-32 w-full h-full">
@@ -65,7 +81,7 @@ export default function Home() {
       </div>
 
       <div className='mt-6'>
-        <div className='font-bold'>Available Rooms</div>
+        <div className='font-bold text-black'>Available Rooms</div>
         <div className='grid grid-cols-1 md:grid-cols-5 gap-4 mt-6'>
           { rooms.map((room, index) => (
             <div key={index} className='border border-blue-500 p-4 flex items-center rounded-md w-full'>
@@ -74,7 +90,7 @@ export default function Home() {
                 <div className='text-blue-500 font-bold text-lg'>{room.name}</div>
               </div>
               <div className=''>
-                <button className='px-4 text-white bg-blue-500 rounded-md'>
+                <button className='px-4 text-white bg-blue-500 rounded-md' onClick={() => joinRoom(room.id)}>
                   join
                 </button>
               </div>

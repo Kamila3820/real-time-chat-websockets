@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"server/util"
 	"strconv"
 	"time"
@@ -69,6 +70,9 @@ func (s *service) Login(c context.Context, req *LoginReq) (*LoginRes, error) {
 	if err != nil {
 		return &LoginRes{}, err
 	}
+
+	fmt.Println("Email: ", req.Email)
+	fmt.Println("Password: ", req.Password)
 
 	err = util.CheckPassword(req.Password, user.Password)
 	if err != nil {
